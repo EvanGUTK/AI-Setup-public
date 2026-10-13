@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 320" width="1200" height="320" role="img" aria-label="AI Setup: one brief, one Chief, visible agents">
+<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#052820"/><stop offset="0.55" stop-color="#0b1d29"/><stop offset="1" stop-color="#0d1325"/></linearGradient><pattern id="grid" width="26" height="26" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1" fill="#5ff3b7" opacity=".12"/></pattern></defs>
+<rect width="1200" height="320" rx="12" fill="url(#bg)"/><rect width="1200" height="320" rx="12" fill="url(#grid)"/>
+<rect x="52" y="62" width="339" height="207" rx="13" fill="#0e2128" stroke="#39866f" stroke-width="2"/><rect x="52" y="62" width="339" height="34" rx="13" fill="#1d353a"/>
+<circle cx="74" cy="80" r="5" fill="#f6797b"/><circle cx="92" cy="80" r="5" fill="#edc06b"/><circle cx="110" cy="80" r="5" fill="#78e3aa"/><text x="128" y="85" fill="#bddfd0" font-size="13" font-family="monospace">agent-team · tmux</text>
+<g font-family="monospace" font-size="12" fill="#a7cfc4">
+<rect x="66" y="108" width="145" height="69" rx="6" fill="#112e2d" stroke="#3a846a"/><text x="78" y="131" fill="#79ecb5">01 / CHIEF</text><text x="78" y="155">$ plan --review</text>
+<rect x="224" y="108" width="152" height="69" rx="6" fill="#102934" stroke="#375a72"/><text x="236" y="131" fill="#79ecb5">02 / VALIDATOR</text><text x="236" y="155">$ verify sha</text>
+<rect x="66" y="190" width="145" height="65" rx="6" fill="#102934" stroke="#375a72"/><text x="78" y="213" fill="#79ecb5">03 / BACKEND</text><text x="78" y="235">$ tests -q</text>
+<rect x="224" y="190" width="152" height="65" rx="6" fill="#112e2d" stroke="#3a846a"/><text x="236" y="213" fill="#79ecb5">04 / FRONTEND</text><text x="236" y="235">$ build</text></g>
+<path d="M415 161h48l-9-7m9 7l-9 7" stroke="#5de7ae" stroke-width="2" fill="none"/>
+<text x="494" y="95" fill="#79dfb9" font-size="18" font-weight="700" letter-spacing="3" font-family="Arial,Helvetica,sans-serif">YOUR AI ENGINEERING WORKSPACE</text>
+<text x="486" y="171" fill="#f5fcf8" font-size="83" font-weight="800" font-family="Arial,Helvetica,sans-serif">AI-Setup</text>
+<text x="492" y="213" fill="#c4d9d3" font-size="24" font-family="Arial,Helvetica,sans-serif">One brief. One Chief. Visible agents.</text>
+<path d="M493 235H1107" stroke="#4abe96" stroke-width="2"/>
+<text x="492" y="261" fill="#9bc9b8" font-size="15" font-family="monospace">CLAUDE CODE / CODEX / TMUX / GIT WORKTREES</text>
+<text x="492" y="290" fill="#65e0ae" font-size="14" font-family="monospace">PLAN FIRST · LOCAL TESTS · REVIEW GATES</text>
+</svg>
