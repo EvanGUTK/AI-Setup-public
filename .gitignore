@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+backups/
+profile-backups/
+.env
+.env.*
+!.env.example
+*.log
+memory/
+.worktrees/
+.DS_Store
+*.swp
+*~
+.idea/
+.vscode/

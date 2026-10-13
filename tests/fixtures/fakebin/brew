@@ -1,0 +1,9 @@
+#!/bin/bash
+# Fake brew for tests/test_install.py: logs argv to $FAKE_LOG; behaviour driven by FAKE_* env vars.
+printf "%s %s\n" "${0##*/}" "$*" >> "${FAKE_LOG:-/dev/null}"
+case "$1" in
+  --prefix) echo "${FAKE_BREW_PREFIX:-/opt/homebrew}";;
+  --version) echo "Homebrew 4.3.0 (fake)";;
+  list) for p in ${FAKE_BREW_HAVE:-}; do for a in "$@"; do [ "$a" = "$p" ] && exit 0; done; done; exit 1;;
+esac
+exit 0

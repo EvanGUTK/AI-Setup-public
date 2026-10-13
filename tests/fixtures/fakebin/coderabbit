@@ -1,0 +1,8 @@
+#!/bin/bash
+# Fake coderabbit for tests/test_install.py: logs argv to $FAKE_LOG; behaviour driven by FAKE_* env vars.
+printf "%s %s\n" "${0##*/}" "$*" >> "${FAKE_LOG:-/dev/null}"
+case "$1 $2" in
+  "auth status") exit "${FAKE_CODERABBIT_AUTH:-1}";;
+esac
+case "$1" in --version|-v|version) echo "coderabbit 0.3.0 (fake)";; esac
+exit 0

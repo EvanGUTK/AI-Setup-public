@@ -1,0 +1,19 @@
+#!/usr/bin/env python3
+"""Interactive user CLI defaults; leave provider subcommands intact."""
+import os, sys
+from pathlib import Path
+sys.path.insert(0,str(Path(__file__).resolve().parent))
+from team import executable, yolo_enabled
+provider=Path(sys.argv[0]).name
+args=sys.argv[1:]
+raw=executable(provider)
+# Configuration supplies defaults to all native sessions. Inject bypass for
+# interactive entry/resume only; never corrupt plugin/login/help arguments.
+management={'agents','exec','e','review','login','logout','mcp','plugin','app-server','remote-control','completion','update','doctor','sandbox','debug','apply','cloud','exec-server','features','help','queue','archive','delete','migrate-rollouts','unarchive','install','auth','setup','migrate'}
+# The YOLO flag is injected only when YOLO defaults were opted into (install.sh --yolo).
+if yolo_enabled() and not (args and (args[0] in management or args[0] in ['--help','-h','--version','-V'])):
+    flag='--dangerously-skip-permissions' if provider=='claude' else '--dangerously-bypass-approvals-and-sandbox'
+    override={'--permission-mode'} if provider=='claude' else {'-s','--sandbox','-a','--ask-for-approval','--approve-for-me'}
+    explicit=any(a.split('=',1)[0] in override for a in args)
+    if flag not in args and not explicit:args.insert(0,flag)
+os.execv(raw,[raw,*args])

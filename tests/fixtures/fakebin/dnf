@@ -1,0 +1,4 @@
+#!/bin/bash
+# Fake dnf for tests/test_install.py: logs argv to $FAKE_LOG; behaviour driven by FAKE_* env vars.
+printf "%s %s\n" "${0##*/}" "$*" >> "${FAKE_LOG:-/dev/null}"
+exit 0

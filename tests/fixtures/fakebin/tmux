@@ -1,0 +1,5 @@
+#!/bin/bash
+# Fake tmux for tests/test_install.py: logs argv to $FAKE_LOG; behaviour driven by FAKE_* env vars.
+printf "%s %s\n" "${0##*/}" "$*" >> "${FAKE_LOG:-/dev/null}"
+case "$1" in -V) echo "tmux ${FAKE_TMUX_VERSION:-3.4}";; esac
+exit 0

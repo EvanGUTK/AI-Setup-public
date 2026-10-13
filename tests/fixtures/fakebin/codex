@@ -1,0 +1,8 @@
+#!/bin/bash
+# Fake codex for tests/test_install.py: logs argv to $FAKE_LOG; behaviour driven by FAKE_* env vars.
+printf "%s %s\n" "${0##*/}" "$*" >> "${FAKE_LOG:-/dev/null}"
+case "$1 $2" in
+  "login status") exit "${FAKE_CODEX_AUTH:-0}";;
+esac
+case "$1" in --version|-V) echo "codex-cli 0.1.0 (fake)";; esac
+exit 0

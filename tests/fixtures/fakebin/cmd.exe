@@ -1,0 +1,7 @@
+#!/bin/bash
+# Fake cmd.exe for tests/test_install.py: logs argv to $FAKE_LOG; behaviour driven by FAKE_* env vars.
+printf "%s %s\n" "${0##*/}" "$*" >> "${FAKE_LOG:-/dev/null}"
+case "$*" in
+  *USERPROFILE*) printf 'C:\\Users\\%s\r\n' "${FAKE_WIN_USER:-tester}";;
+esac
+exit 0

@@ -1,0 +1,13 @@
+{
+  "claude": {
+    "chief": "claude-opus-5-5",
+    "validator": "claude-opus-5-5",
+    "worker": "claude-sonnet-5-5"
+  },
+  "codex": {
+    "chief": "gpt-6.1-sol",
+    "validator": "gpt-6.1-sol",
+    "worker": "gpt-6-luna"
+  },
+  "effort": "high"
+}
