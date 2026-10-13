@@ -1,90 +1,221 @@
-# AI-Setup
+<div align="center">
 
-A portable Claude Code and Codex "agent team" setup: shared engineering rules, 12 specialised roles (Chief, Validator, Architect, Product, Backend, Frontend, Engine, Data, QA, Security, Platform, Integrator), 120 focused skills, and `claude-team` / `codex-team` launchers that run each agent as its own tmux pane. Work is planned first, built in isolated git worktrees, reviewed locally, and merged only when you say so. No remote CI is created.
+<img src="assets/ai-setup-hero.svg" width="100%" alt="AI-Setup — One brief. One Chief. Visible agents." />
 
-## Install with one prompt
+<br />
+
+**A portable Claude Code + Codex engineering-team setup**
+
+*Shared rules · twelve specialist roles · 120 focused skills · visible tmux agents*
+
+[![Platforms](https://img.shields.io/badge/PLATFORMS-WSL2%20%7C%20LINUX%20%7C%20MACOS-174b42?style=for-the-badge&labelColor=121c25)](INSTALLATION.md)
+[![Roles](https://img.shields.io/badge/AGENTS-12%20ROLES%20%7C%20120%20SKILLS-278a68?style=for-the-badge&labelColor=121c25)](team/ROSTER.md)
+[![Providers](https://img.shields.io/badge/CLI-CLAUDE%20%2B%20CODEX-456ea4?style=for-the-badge&labelColor=121c25)](team/README.md)
+[![Checks](https://img.shields.io/badge/TESTING-LOCAL%20ONLY-7a55a0?style=for-the-badge&labelColor=121c25)](REVIEW.md)
+
+[**Quick start**](#quick-start) · [**How it works**](#how-it-works) · [**Agent roster**](#meet-the-team) · [**Install options**](#install-options) · [**Documentation**](#documentation)
+
+</div>
+
+---
+
+> [!IMPORTANT]
+> **AI-Setup is a public setup kit—not a hosted AI orchestration service.** It configures local tools and launches Claude-only or Codex-only teams inside tmux. Interactive end-to-end model-team startup has not been fully validated in the repository's local test suite; provider login, model availability, trust prompts, and tmux behavior depend on your installation.
+
+## What is AI-Setup?
+
+AI-Setup gives Claude Code and OpenAI Codex a common operating environment: shared engineering standards, **12 named specialist roles**, **120 skills** (ten per role), and `claude-team` / `codex-team` commands. Chief plans the work and waits for your approval, Validator independently checks results, and editing agents work in **separate Git worktrees**.
+
+| Principle | Behavior |
+|:--|:--|
+| **Plan before code** | Chief proposes project scope, architecture, dependencies, stack and acceptance criteria |
+| **Visible agents** | Each team member gets a native CLI process in its own tmux pane |
+| **Explicit ownership** | Editing workers use independent topic branches and worktrees |
+| **Atomic verification** | Focused local tests, CodeRabbit review and commit-bound evidence |
+| **Review-gated publication** | The local push helper checks two approval records and an exact SHA; merges remain user-controlled |
+| **Portable configuration** | Dry runs, backups, restore, WSL mirroring and optional YOLO settings |
+
+## Quick start
+
+### Option A — Let Claude Code or Codex guide installation
 
 ```bash
-git clone https://github.com/EvanGUTK/AI-Setup-public
+git clone https://github.com/EvanGUTK/AI-Setup-public.git
 cd AI-Setup-public
-claude        # or: codex
+claude                  # or: codex
 ```
 
-Then tell the agent: **"implement this in my system"**.
+Then tell the agent:
 
-The repository's `CLAUDE.md` / `AGENTS.md` contain the runbook the agent follows:
+> **Implement this setup in my system. Start with a dry run, explain proposed changes, and ask before installing.**
 
-1. `./install.sh --dry-run` shows every planned change and writes nothing.
-2. It asks you once, in a single question, about the steps that need `sudo` (system packages such as tmux, gh, git) and whether to turn on the optional YOLO defaults (see below).
-3. `./install.sh` installs. Every file it changes is backed up first, and a second run changes nothing.
-4. After you open a new terminal (so the launchers and `PATH` load), `agent-team doctor` checks the result and reports pass/fail, with the exact fix command for anything missing.
-5. It lists the logins you still do by hand.
+The repository's `CLAUDE.md` and `AGENTS.md` describe the installation procedure. Authentication is manual.
 
-You can also run it yourself, without an agent:
+### Option B — Install directly
 
 ```bash
-./install.sh --dry-run
-./install.sh                     # add --yes to accept system-package installs, --no-system to skip them
-agent-team doctor
+./install.sh --dry-run    # Preview changes; writes nothing
+./install.sh              # Interactive installation
+# Open a new shell to reload the launchers
+agent-team doctor         # Dependency and configuration checks
 ```
 
-### Options
+For Windows, run the shell installer **inside Ubuntu/WSL2**, then run `.\install.ps1` from Windows PowerShell to add the Windows launcher integration. Review [full installation instructions](INSTALLATION.md), including backups and restore, first.
 
-| Option | Effect |
-| --- | --- |
-| `--dry-run` | Print planned changes; write nothing. |
-| `--yes` | Accept the system-package (sudo) step without prompting. |
-| `--no-system` | Skip system packages; list what to install by hand. |
-| `--yolo` | Opt in to YOLO defaults: plain `claude`/`codex` and the team launchers bypass permission prompts. Off by default; managed organisation policy still takes precedence. |
-| `--home DIR` | Install into `DIR` instead of `$HOME` (sandbox/testing). |
-| `--windows-home DIR` / `--no-windows` | WSL only: choose or skip the Windows mirror. |
-| `--restore TIMESTAMP` | Restore the backup in `~/.agent-team/backups/TIMESTAMP/`. |
+## How it works
 
-## Platforms
-
-| Platform | How |
-| --- | --- |
-| WSL / Ubuntu | `./install.sh`. Also mirrors to your Windows profile; run `install.ps1` from PowerShell for the Windows launchers. |
-| Linux | `./install.sh`. apt, dnf and pacman are detected; other package managers get printed manual steps. |
-| macOS | `./install.sh`. Needs [Homebrew](https://brew.sh) for system packages; works with the stock bash 3.2. |
-| Windows | Run the installer from WSL. `install.ps1` then adds the PowerShell profile functions and `claude-team` / `codex-team` `.cmd` launchers, which call WSL. |
-
-## Prerequisites and manual steps
-
-The installer checks for python3 (3.9+), git, tmux, gh, the CodeRabbit CLI, and the `claude` and/or `codex` CLI. ECC and CCPM plugins are installed through each CLI's plugin mechanism when that CLI is installed and logged in; otherwise `agent-team doctor` marks them missing with the command to run.
-
-Your own `~/.claude/CLAUDE.md` and `~/.codex/AGENTS.md` are kept: the setup's global rules are added as a managed block between marker comments, and re-running replaces only that block.
-
-Logins are never automated. Do these yourself:
-
-```bash
-claude            # then /login
-codex login
-gh auth login
-coderabbit auth login
+```mermaid
+flowchart TD
+    A["Describe your project<br/>and constraints"] --> B["Start Chief + Validator<br/>in a tmux team"]
+    B --> C["Chief proposes a detailed<br/>plan and task hierarchy"]
+    C --> D{"Approve the plan?"}
+    D -- "Revise" --> C
+    D -- "Approve" --> E["Select specialist roles<br/>and assign bounded work"]
+    E --> F["Isolated Git worktree<br/>for each editing worker"]
+    F --> G["Real CLI processes<br/>in separate tmux panes"]
+    G --> H["Atomic changes and tests<br/>local CodeRabbit review"]
+    H --> I["Validator + Chief review<br/>exact-commit evidence"]
+    I --> J{"Verified?"}
+    J -- "Fix and retest" --> H
+    J -- "Yes" --> K["Guarded topic push<br/>and issue-linked PR"]
+    K --> L["User controls merging"]
+    classDef lead fill:#154035,stroke:#50cb9b,color:#fff
+    classDef gate fill:#503a23,stroke:#e6bc72,color:#fff
+    classDef work fill:#1c3241,stroke:#80b5cd,color:#fff
+    class A,B,C,L lead
+    class D,J gate
+    class E,F,G,H,I,K work
 ```
 
-## Use it
+The workflow is **guided and prompt-driven**, not a separate scheduler guaranteeing automatic agent startup. The Chief's bootstrap prompt instructs it to start Validator first, wait for its acknowledgment, propose a deep plan and obtain user approval before delegation. Team messaging uses durable mailbox files and pane notices.
 
-In a new shell, from your project directory:
+### Inspect the team, not twelve chat tabs
+
+<div align="center">
+
+<img src="assets/tmux-team-preview.svg" alt="Illustrative tmux grid showing Chief, Validator and four specialist terminal panes" width="100%" />
+
+<sub>Concept illustration; not a captured live session.</sub>
+
+</div>
+
+The default limit is **six panes per tmux window** (`AGENT_TEAM_MAX_PANES`). Additional agents open in another window in the same session. A Claude team is Claude-only; a Codex team is Codex-only. Different providers don't automatically share one internal message bus.
+
+## Meet the team
+
+Twelve installed role definitions each have ten accompanying personal skills. Chief selects useful specialists after plan approval rather than launching everyone indiscriminately.
+
+| Role | Specialization | Role | Specialization |
+|:--|:--|:--|:--|
+| **Chief** | Planning, delegation, user interaction | **Validator** | Independent review and push gate |
+| **Architect** | Architecture, contracts, repository design | **Product** | PRDs, journeys, feature scope |
+| **Backend** | Services, APIs, backend tests | **Frontend** | UI and interaction |
+| **Engine** | Core runtime and algorithms | **Data** | Storage, schema and migrations |
+| **QA** | Regression and integration tests | **Security** | Threat modeling and protections |
+| **Platform** | Toolchains and system integration | **Integrator** | Worktrees and merge coordination |
+
+Read the [full roster and all 120 skills](team/ROSTER.md).
+
+## Working with teams
 
 ```bash
+# Start a team from inside your own project
 claude-team "I want to build a scheduling app"
-codex-team "I want to add reporting to this app"
+codex-team "Add reporting to this application"
+
+# Inspect environment and running team
+agent-team doctor
+agent-team panes
+agent-team inbox
+
+# Create an isolated editing checkout
+agent-team worktree backend reporting
+
+# Inspect exact-SHA local review gates
+agent-team gate status
 ```
 
-Chief proposes a plan and waits for your approval, then delegates to roles in separate tmux panes, one user-testable increment at a time. See [team/README.md](team/README.md) for the full guide (pane teams, messaging, worktrees, review gates, synchronisation).
+For teammates, message routing, pane creation, review records and explicit handoffs, follow [the team guide](team/README.md). The local push helper rejects protected-branch destinations and stale or missing evidence—but **raw Git commands can bypass that helper**; it is a workflow guard, not a system-level security sandbox.
 
-## Repository map
+## Install options
 
-| Path | Purpose |
-| --- | --- |
-| `install.sh`, `install.ps1` | Installers (POSIX/WSL and Windows). |
-| `team/` | The package copied to `~/.agent-team`: rules, roles, skills, bootstrap prompts, `team.py` (the `agent-team` CLI), deployers. |
-| `tests/` | Unit and black-box install tests: `python3 -m unittest discover -s tests -v`. |
-| `PROJECT.md`, `ARCHITECTURE.md`, `INSTALLATION.md`, `TASKS.md`, `REVIEW.md` | Scope, design, install/restore/uninstall, work log, local review record. |
-| `CLAUDE.md`, `AGENTS.md` | Install runbook for agents plus contributor notes. |
+| Flag | What it does |
+|:--|:--|
+| `--dry-run` | Prints expected changes without writing |
+| `--yes` | Accepts system-package installation without another prompt |
+| `--no-system` | Skips package installation |
+| `--yolo` | Opts into permission-bypass defaults where permitted |
+| `--home DIR` | Installs under another home for sandbox testing |
+| `--windows-home DIR` / `--no-windows` | Controls WSL-to-Windows mirroring |
+| `--restore TIMESTAMP` | Restores a recorded backup |
 
-## Safety
+**Permission bypass is OFF by default.** The optional `--yolo` setting can allow a CLI to edit files and run commands without ordinary approval prompts. Use it only in a trusted, contained environment. Organization and project policies may still disallow it.
 
-The installer never reads or copies credentials, never pushes anywhere, and does not enable remote CI. Backups of changed configuration can contain sensitive values from your old config; keep them private. Managed organisation policy and project restrictions take precedence over the permission defaults this setup configures.
+| Platform | Team sessions |
+|:--|:--|
+| **Windows / WSL2** | Teams run inside WSL tmux; PowerShell launchers forward team commands |
+| **Linux** | Direct terminal + tmux; apt/dnf/pacman prerequisites |
+| **macOS** | Direct terminal + tmux; Homebrew supported |
+
+The installer checks Python 3.9+, Git, tmux, GitHub CLI, CodeRabbit and installed Claude/Codex CLIs. ECC and CCPM integration is handled through their supported plugin/skill mechanisms; provider logins are never automated.
+
+## Repository layout
+
+```text
+AI-Setup-public/
+├── README.md
+├── assets/                # Brand artwork and tmux pane diagram
+├── install.sh             # WSL, Linux and macOS installation
+├── install.ps1            # Windows PowerShell integration
+├── team/
+│   ├── team.py            # CLI, tmux panes, mailboxes, worktrees and gates
+│   ├── build_setup.py     # Role, skill and rules deployment
+│   ├── install_launchers.py
+│   ├── bootstrap-claude.txt
+│   ├── bootstrap-codex.txt
+│   ├── models.json        # Requested provider models and effort
+│   ├── ROSTER.md
+│   ├── UNIVERSAL.md
+│   ├── roles/
+│   ├── skills/
+│   └── README.md
+├── tests/                 # Behavioral and installation tests
+├── PROJECT.md
+├── ARCHITECTURE.md
+├── INSTALLATION.md
+├── TASKS.md
+├── REVIEW.md
+├── CLAUDE.md
+└── AGENTS.md
+```
+
+## Documentation
+
+| Guide | Focus |
+|:--|:--|
+| [Installation](INSTALLATION.md) | Setup, verification, backup, restore and uninstall |
+| [Operator guide](team/README.md) | Starting panes, sending messages, worktrees and Git gates |
+| [Architecture](ARCHITECTURE.md) | System boundaries, provider exclusivity, persistence and known limits |
+| [Specialist roster](team/ROSTER.md) | All twelve roles and their ten skills |
+| [Project definition](PROJECT.md) | Goals, constraints, public repository requirements |
+| [Review history](REVIEW.md) | Local CodeRabbit findings, fixes and limitations |
+| [Implementation tasks](TASKS.md) | Completed and tracked work |
+| [Claude instructions](CLAUDE.md) / [Codex instructions](AGENTS.md) | Agent-facing installation guidance |
+
+### Verify the repository locally
+
+```bash
+python3 -m unittest discover -s tests -v
+```
+
+The repository does not create remote CI/CD workflows. A passing unit suite or installer doctor check **does not prove** that all configured provider models are available or that a live multi-agent team has completed an end-to-end run.
+
+---
+
+<div align="center">
+
+**One brief. One Chief. Visible agents.**
+
+<sub>Public engineering setup project · No license file detected at time of this README update.</sub>
+
+</div>
