@@ -8,7 +8,7 @@
 
 *Shared rules · twelve specialist roles · 120 focused skills · visible tmux agents*
 
-[![Platforms](https://img.shields.io/badge/PLATFORMS-WSL2%20%7C%20LINUX%20%7C%20MACOS-174b42?style=for-the-badge&labelColor=121c25)](INSTALLATION.md)
+[![Platforms](https://img.shields.io/badge/PLATFORMS-WINDOWS%20%7C%20WSL2%20%7C%20LINUX%20%7C%20MACOS-174b42?style=for-the-badge&labelColor=121c25)](INSTALLATION.md)
 [![Roles](https://img.shields.io/badge/AGENTS-12%20ROLES%20%7C%20120%20SKILLS-278a68?style=for-the-badge&labelColor=121c25)](team/ROSTER.md)
 [![Providers](https://img.shields.io/badge/CLI-CLAUDE%20%2B%20CODEX-456ea4?style=for-the-badge&labelColor=121c25)](team/README.md)
 [![Checks](https://img.shields.io/badge/TESTING-LOCAL%20ONLY-7a55a0?style=for-the-badge&labelColor=121c25)](REVIEW.md)
@@ -60,7 +60,21 @@ The repository's `CLAUDE.md` and `AGENTS.md` describe the installation procedure
 agent-team doctor         # Dependency and configuration checks
 ```
 
-For Windows, run the shell installer **inside Ubuntu/WSL2**, then run `.\install.ps1` from Windows PowerShell to add the Windows launcher integration. Review [full installation instructions](INSTALLATION.md), including backups and restore, first.
+For Windows with WSL2, run the shell installer **inside Ubuntu/WSL2**, then run `.\install.ps1` from Windows PowerShell to add the Windows launcher integration. Review [full installation instructions](INSTALLATION.md), including backups and restore, first.
+
+### Option C — Native Windows (no WSL)
+
+Windows PowerShell 5.1 or newer, plus Git and Claude Code. Nothing else is required.
+
+```powershell
+git clone https://github.com/EvanGUTK/AI-Setup-public.git
+cd AI-Setup-public
+powershell -ExecutionPolicy Bypass -File .\install-native.ps1 -DryRun   # Preview; writes nothing
+powershell -ExecutionPolicy Bypass -File .\install-native.ps1           # Install the core set
+powershell -ExecutionPolicy Bypass -File .\install-native.ps1 -All      # Also install the optional plugin tier
+```
+
+It installs the universal rules (a managed block in `~/.claude/CLAUDE.md`), the 120 team skills, the `design-match` skill, CCPM and a design-systems library (both fetched from pinned commits), and the Claude Code plugins listed in [`native/plugins.json`](native/plugins.json). Every changed file is backed up first, and `-Restore <timestamp>` and `-Uninstall` undo it. Native Windows has no tmux, so pane teams (`claude-team`, `codex-team`) are not available there. Details are in [INSTALLATION.md](INSTALLATION.md).
 
 ## How it works
 
@@ -154,6 +168,7 @@ For teammates, message routing, pane creation, review records and explicit hando
 | Platform | Team sessions |
 |:--|:--|
 | **Windows / WSL2** | Teams run inside WSL tmux; PowerShell launchers forward team commands |
+| **Windows (native)** | Rules, skills and plugins only; pane teams need tmux and are not available |
 | **Linux** | Direct terminal + tmux; apt/dnf/pacman prerequisites |
 | **macOS** | Direct terminal + tmux; Homebrew supported |
 
@@ -166,7 +181,9 @@ AI-Setup-public/
 ├── README.md
 ├── assets/                # Brand artwork and tmux pane diagram
 ├── install.sh             # WSL, Linux and macOS installation
-├── install.ps1            # Windows PowerShell integration
+├── install.ps1            # Windows PowerShell integration (WSL launchers)
+├── install-native.ps1     # Native Windows installer (no WSL)
+├── native/                # Plugin manifest, preferences template, design-match skill
 ├── team/
 │   ├── team.py            # CLI, tmux panes, mailboxes, worktrees and gates
 │   ├── build_setup.py     # Role, skill and rules deployment

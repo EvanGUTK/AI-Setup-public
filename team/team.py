@@ -628,7 +628,7 @@ def sync(args):
         for item in src.rglob('*'):
             if item.is_file():copy_file(item,dest/item.relative_to(src))
     # Copy owned content only; exclude backups, caches and personal installer.
-    for name in ['UNIVERSAL.md','ROSTER.md','README.md','models.json','bootstrap-claude.txt','bootstrap-codex.txt','roles','skills','memory']:
+    for name in ['UNIVERSAL.md','TEAM_MODE.md','ROSTER.md','README.md','models.json','bootstrap-claude.txt','bootstrap-codex.txt','roles','skills','memory']:
         src=ROOT/name
         if src.is_dir():copy_tree(src,target/name)
         elif src.exists():
@@ -770,7 +770,7 @@ def doctor_checks():
     add('ccpm','ok' if ccpm_skill or ccpm_plugin else 'fail','CCPM skill available' if ccpm_skill else ('CCPM plugin available' if ccpm_plugin else 'CCPM skill not installed'),
         None if ccpm_skill or ccpm_plugin else f'{installer} (fetches CCPM from github.com/automazeio/ccpm); plugin: claude plugin install ccpm')
     # Installed package.
-    needed=['team.py','build_setup.py','install_launchers.py','cli-shim','models.json','UNIVERSAL.md','ROSTER.md','bootstrap-claude.txt','bootstrap-codex.txt']
+    needed=['team.py','build_setup.py','install_launchers.py','cli-shim','models.json','UNIVERSAL.md','TEAM_MODE.md','ROSTER.md','bootstrap-claude.txt','bootstrap-codex.txt']
     missing=[n for n in needed if not (root/n).is_file()]
     add('~/.agent-team','fail' if missing else 'ok',('missing: '+', '.join(missing)) if missing else f'{len(needed)} package files present',installer if missing else None)
     roles_root=len([r for r in ROLES if (root/f'roles/{r}.md').is_file()])

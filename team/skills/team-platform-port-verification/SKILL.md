@@ -9,10 +9,10 @@ description: "Use for platform work involving port verification in an approved e
 Approved task and acceptance criteria, relevant repository files, current role/worktree, and applicable user preferences. Read the relevant role definition when ownership is unclear.
 
 ## Procedure
-Choose an available port, bind HTTP servers to 0.0.0.0, check curl responses and distinguish verified URLs from advertised addresses.
+Choose an available port, bind HTTP servers to 127.0.0.1 (0.0.0.0 only when WSL or another system must reach them, and say so), check curl responses and distinguish verified URLs from advertised addresses.
 
 ## Evidence and output
-Health evidence and localhost/WSL URLs.
+Health evidence and verified URLs.
 Provide concrete file or command references and distinguish observed outcomes from assumptions. Validate at the smallest meaningful layer; do not claim checks that were not run.
 
 ## Failure handling

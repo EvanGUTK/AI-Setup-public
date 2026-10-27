@@ -160,7 +160,7 @@ Owns local environments, packaging, WSL/Windows paths, developer tooling and obs
 - `team-platform-build-packaging` — Build commands and checked artifacts.
 - `team-platform-wsl-windows-paths` — Cross-platform path checks.
 - `team-platform-local-services` — Service lifecycle instructions.
-- `team-platform-port-verification` — Health evidence and localhost/WSL URLs.
+- `team-platform-port-verification` — Health evidence and verified URLs.
 - `team-platform-local-gates` — Local verification entry points.
 - `team-platform-tool-integration` — Validated tooling integration.
 - `team-platform-runtime-diagnostics` — Actionable local runtime diagnostics.
