@@ -22,13 +22,26 @@ Manual steps the installer never automates (credentials stay with the user): `cl
 Platform notes:
 
 - **WSL/Ubuntu:** Linux install plus a Windows mirror (the installer finds the Windows profile via `cmd.exe /c echo %USERPROFILE%`). Windows-side launchers need `install.ps1` run from PowerShell; mention this to Windows users.
-- **Native Windows:** run the installer from inside WSL. `install.ps1` only adds the PowerShell profile functions and `claude-team` / `codex-team` `.cmd` launchers that call WSL.
+- **Native Windows with WSL available:** run the installer from inside WSL. `install.ps1` only adds the PowerShell profile functions and `claude-team` / `codex-team` `.cmd` launchers that call WSL.
+- **Native Windows without WSL:** use `install-native.ps1` instead of `install.sh` (see the native runbook below). Pane teams are not available there.
 - **Linux:** apt, dnf and pacman are detected. On any other package manager the installer prints the manual steps.
 - **macOS:** requires Homebrew for system packages; the installer is bash 3.2 and BSD-tool compatible.
 - The install is idempotent: a second run changes nothing. Every changed file is backed up before it is overwritten.
 - Global rules (`~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md`) are written as a managed block between BEGIN/END marker comments. The user's own content in those files is preserved, and re-running replaces only the block.
 
 Never push, force-push or open a PR as part of an install. Never paste credentials into files. If a step fails, stop, report the exact error and the fix command, and wait for the user.
+
+### Native Windows runbook (no WSL)
+
+Use this instead of steps 1 to 4 when the machine is Windows without WSL. Run from the repository root in PowerShell.
+
+1. **Preview.** `powershell -ExecutionPolicy Bypass -File .\install-native.ps1 -DryRun`. Summarize what it would change. It writes nothing.
+2. **Confirm once.** Ask one question: install the core plugin set only, or also the optional tier (`-All`: language servers, hosted-service plugins, response-style plugins). Mention that `caveman` and `ponytail` change behavior at every session start.
+3. **Install.** Run the script without `-DryRun` (add `-All` if the user chose it). It backs up every file it changes under `~/.agent-team/backups/<timestamp>/`. `-Restore <timestamp>` and `-Uninstall` undo it.
+4. **Verify.** Read the script's summary. A non-zero exit means a step reported a `PROBLEM` line; report each one with its fix. Do not claim success for a step that failed or was skipped.
+5. **Report.** List the manual steps the script printed: `/login` in `claude` (account-synced plugins and logins for plugins marked `login` in `native/plugins.json`), `gh auth login`, `coderabbit auth login`. State that pane teams are unavailable on native Windows.
+
+Plugins and the manifest live in `native/plugins.json`. Third-party code is fetched at install time from pinned marketplaces and commits and is never copied into this repository. Do not edit that manifest during an install.
 
 ## 2. Contributing to this repository
 
