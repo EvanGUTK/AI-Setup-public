@@ -62,8 +62,10 @@ class ManifestTests(unittest.TestCase):
         tiers = {p['tier'] for p in self.manifest['plugins']}
         self.assertEqual(tiers, {'core', 'optional'})
         self.assertTrue(self.manifest['synced'])
+        installable = {p['name'] for p in self.manifest['plugins']}
         for name in self.manifest['synced']:
             self.assertNotIn('@', name)
+            self.assertNotIn(name, installable, f'{name} is listed as both installable and account-synced')
 
     def test_extras_are_pinned_to_full_commit_hashes(self):
         for key in ('ccpm', 'designSystems'):
