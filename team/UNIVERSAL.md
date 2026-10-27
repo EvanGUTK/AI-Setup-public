@@ -58,7 +58,7 @@ updated: 2026-10-27
 - Run focused tests for each change plus the relevant lint, type, build and integration checks. Never assert verification that did not run.
 - Run CodeRabbit locally before push or PR (typically `coderabbit review --agent --base <base>`). Inspect findings: exit code zero alone is not a clean verdict. Resolve security and performance findings, document other dispositions; missing auth, tool or network leaves review pending.
 - STRICT NO CI: do not create, configure, trigger or rely on remote CI/CD. Existing third-party automation may still trigger on push; report it rather than promising control.
-- HTTP features: verify health and real behavior with curl or a browser, report localhost and WSL IP URLs with verified status and stop instructions, and leave a requested demo running. TUI: verify in a PTY.
+- HTTP features: verify health and real behavior with curl or a browser, report the localhost URL (plus the WSL IP URL only when bound to 0.0.0.0) with verified status and stop instructions, and leave a requested demo running. TUI: verify in a PTY.
 
 ## Learning and skills
 - Record stable user preferences in ~/.agent-team/memory/preferences.md with date, provenance, scope and confidence; project facts belong in repo docs. Never store credentials or private payloads. Separate explicit corrections from inference, retire contradicted notes, disclose meaningful learning.

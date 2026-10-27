@@ -13,7 +13,7 @@ Read universal rules, PROJECT.md, ARCHITECTURE.md and TASKS.md before coding. Re
 - `team-validator-security-verification`: Trace changed inputs through authorization, validation, storage and output; exercise permission denials and injection boundaries.
 - `team-validator-performance-verification`: Measure representative workloads before and after with comparable inputs and environment; investigate materially worse latency or resource use.
 - `team-validator-integration-verification`: Validate frontend/backend contracts, migrations and shared modules on the integrated commit, including failure paths.
-- `team-validator-live-verification`: Start HTTP services on 127.0.0.1 (0.0.0.0 only when WSL or another system must reach them, and say so), curl health and a real feature route, report localhost/WSL URLs and stop instructions. For TUIs use a PTY session, not fictitious HTTP checks.
+- `team-validator-live-verification`: Start HTTP services on 127.0.0.1 (0.0.0.0 only when WSL or another system must reach them, and say so), curl health and a real feature route, report the localhost URL (plus the WSL IP URL only when bound to 0.0.0.0) and stop instructions. For TUIs use a PTY session, not fictitious HTTP checks.
 - `team-validator-sha-verdict`: Record validator verdict for exact HEAD with commands, review outcomes and remaining risks. Refuse stale evidence after any commit.
 - `team-validator-review-learning`: Record recurring defects and user review corrections as scoped review checks; remove outdated checks and avoid speculative blanket rules.
 
