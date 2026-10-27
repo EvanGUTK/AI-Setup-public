@@ -423,55 +423,71 @@ ROLES = {
 }
 
 RULES = '''---
-tags: [claude-code, codex, global-rules, multi-agent, coderabbit, github-flow]
+tags: [claude-code, codex, global-rules, brainstorm-first, coderabbit, github-flow]
 scope: global
-updated: 2026-10-13
+updated: 2026-10-27
 ---
 
 # Universal engineering rules
 
-## Context and scope
-- Read existing relevant files and inspect boundaries before writing. Check PROJECT.md, ARCHITECTURE.md and TASKS.md in the repository root before coding. If absent, record the gap; Chief creates useful documents after plan approval rather than inventing facts.
-- Keep changes targeted to the approved task. Preserve unrelated work and match repository conventions. Follow direct user instructions and higher-priority runtime policy; these rules do not override managed restrictions.
-- Read ~/.agent-team/memory/preferences.md and the relevant role memory. Treat explicit user corrections as authoritative within their scope; inferred preferences remain tentative.
+## Brainstorm first: never code blind
+- Trigger: the user discusses a project, sounds like they want to start one, or asks for a feature, change, update, refactor or fix whose full scope is not already pinned down.
+- Before any code, scaffolding, task list or plan, run an in-depth brainstorm (use the brainstorming skill when available) until you can state back WHAT is being built, for whom and why.
+- Cover: goal and users; the real-world workflow step by step; scope, non-goals and phases; physical and system constraints (hardware, network, OS, existing software, budget); data and integrations; edge cases, failure modes and abuse cases; how success will be tested and demoed.
+- Read existing code and docs first so you do not ask what the repo already answers. Ask a few focused questions at a time, most important first, offer options with a recommendation, and keep a running list of open questions.
+- Finish by reflecting the full scope back in your own words and getting the user's confirmation. Only then write PROJECT.md (confirmed facts plus open questions, never invented facts) and move to planning.
+- Changes to existing software get the same treatment: current behavior, desired behavior, blast radius, regression risk. The brainstorm scales with the change but is never skipped; only a request that is already fully specified (exact file and exact edit) may go straight to code.
+- If the user says something is "not for coding yet" or "just context", record it and do not code.
+
+## Scope of these rules
+- Full workflow (plan, issue, topic branch and worktree, review gates) for features, bug fixes and refactors in a git repo. Small fully specified edits and non-repo directories: keep the change targeted, follow conventions, verify, no ceremony.
+- Follow direct user instructions and higher-priority runtime or managed policy; these rules never override them.
+- Team mode (AGENT_TEAM_PROVIDER set, or the user asks for a team): also read ~/.agent-team/TEAM_MODE.md.
+- Windows sessions run in PowerShell; agent-team, tmux, gh and coderabbit may live in WSL. Check WSL before reporting a tool missing.
+
+## Context
+- Read relevant files and inspect boundaries before writing. Check PROJECT.md, ARCHITECTURE.md and TASKS.md in the repo root; if absent, record the gap rather than inventing facts.
+- Read ~/.agent-team/memory/preferences.md at the start of work. Explicit user corrections are authoritative within their scope; inferred preferences stay tentative.
+- Keep changes targeted to the approved task, match repository conventions, preserve unrelated work.
 
 ## Plan, then execute autonomously
-- For a new app or substantial feature, Chief first proposes an in-depth plan covering journeys, requirements/non-goals, architecture alternatives, data/contracts, annotated repo tree, hierarchy, dependencies, milestones, acceptance tests, risks, budget and rollback. Wait for explicit user approval or modification before repository provisioning or implementation.
-- Approval of a plan authorizes ordinary implementation, local tests, installs needed for that plan, topic commits and issue/PR operations within the approved increment. Avoid repeated permission questions in YOLO mode. Product decisions and merge approval still require the user's stated authority.
-- Deliver one user-testable increment at a time. Chief splits the approved plan into increments; after each, it verifies (tests, Validator, live check), hands the user what changed, exact how-to-test steps and the running demo URL with stop instructions, then waits for the user's feedback or go-ahead before the next increment. Autonomy applies within an approved increment only.
-- Give meaningful concise progress updates, incorporate steering and report blockers honestly. Ask only for missing decisions that materially change the outcome; continue independent work.
-
-## Chief, Validator and the team
-- When invoked in team mode, Chief is the main orchestrator in a visible tmux pane. Its first action is `agent-team spawn validator`; it obtains Validator's acknowledgement with `agent-team inbox` before planning. Keep Validator addressable; if it cannot be spawned or does not answer, report degraded mode and do not bypass its gate.
-- One pane per agent: Validator and every worker run as their own tmux pane in Chief's window, opened with `agent-team spawn <role> --task <task> -C <dir>`. The window is re-tiled automatically so every pane fits, panes are titled by role/task, and past AGENT_TEAM_MAX_PANES (default 6) further agents open in a new window of the same session. Never use in-process or native subagent tools for team roles; read-only in-process search helpers for lookups are allowed.
-- Provider-exclusive teams: `claude-team` uses only Claude agents and `codex-team` only Codex agents. The launcher records the provider on the tmux session and `agent-team spawn` refuses any other provider; startup prompts name only that provider's models.
-- Claude Chief/Validator: claude-opus-5-5 at high effort. Workers: claude-sonnet-5-5 at high; use xhigh for difficult work. Codex Chief/Validator: gpt-6.1-sol at high. Workers: gpt-6-luna at high, escalating effort/model when justified by evidence. Do not silently substitute unavailable models.
-- Chief is the user's only point of contact. Validator and workers take direction from Chief and send questions, blockers and verdicts with `agent-team send chief`; they never ask the user directly.
+- For a new app or substantial feature, after the brainstorm propose an in-depth plan: journeys, requirements and non-goals, architecture alternatives, data and contracts, annotated repo tree, dependencies, milestones, acceptance tests, risks, budget and rollback. Wait for explicit approval or modification before provisioning or implementation.
+- Approval authorizes ordinary implementation, local tests, installs needed for the plan, topic commits and issue/PR operations within the approved increment. Avoid repeated permission questions. Product decisions and merge approval still need the user's stated authority.
+- Deliver one user-testable increment at a time: verify it, then hand over what changed, exact how-to-test steps, and the running demo URL with stop instructions, and wait for the user's go-ahead before the next. Autonomy applies within an approved increment only.
+- Give concise progress updates, incorporate steering, report blockers honestly, and ask only for decisions that materially change the outcome.
 - No autonomous loops (/loop, continuous or ralph-style agent loops, self-rescheduling) unless the user explicitly requests one.
-- The 12 personal role definitions are chief, validator, architect, product, backend, frontend, engine, data, qa, security, platform and integrator. Read the relevant ~/.agent-team/roles/<role>.md and load only task-relevant skills. Each role has ten skills; consult ~/.agent-team/ROSTER.md.
-- After plan approval, Chief selects the required roles, assigns exclusive ownership and contracts, and creates a hierarchy and repo tree plan. Create a new agent/skill only for a demonstrated missing capability; avoid redundant generic roles.
-- Messaging is a file mailbox plus a pane notice: `agent-team send <role|%pane> <message>` writes a durable file under $AGENT_TEAM_STATE/mailbox/<role>/ and posts a one-line notice for the recipient. The notice is typed only when the target pane's input line is empty; otherwise it appears as a tmux status-bar message and injection is retried briefly (about 60s), so keystrokes never merge with what the user is typing (Chief's pane is always checked this way); the recipient runs `agent-team inbox`. `agent-team panes` shows live/dead agents. Put handoffs, findings and approvals in these files, not only in pane text. Panes are terminals, not a protocol; a separate team of the other provider shares no bus, so agree ownership and exchange durable handoff files.
 
-## GitHub, worktrees and atomic work
-- Use CCPM for PRD → epic → dependency-aware tasks → linked GitHub issues. The user's topic-branch, worktree and conventional-commit rules override conflicting CCPM defaults.
-- Create or reuse a GitHub issue before feature/bug implementation. If no remote/auth/network exists, Chief reports the missing prerequisite; do not fabricate issue IDs. For a brand-new app, propose private repository provisioning in the approved plan. Never auto-publish the user's home directory or unrelated files.
-- Every writer works in a separate topic branch and sibling worktree. Use agent-team worktree <role> <task> and pass that directory to `agent-team spawn -C`. Every agent verifies `pwd` equals its assigned directory before any edit, and Chief checks each pane's cwd; agent-definition isolation settings are not relied on.
-- Never push directly to main/master or the remote default branch, force push, or overwrite unrelated work. Stage explicit paths; make focused commits as <type>(<scope>): <summary> with linked issue references.
-- Test each coherent behavior before committing. Push reviewable atomic batches only after Validator and Chief approve the exact HEAD. New commits invalidate previous approval. Prefer agent-team gate record ... and agent-team gate push ... for the mechanical SHA gate; raw git commands still require the same policy.
-- Open a PR linked to issues with Closes #N and local verification evidence. The user is final merge authority unless they explicitly delegate merging to Chief. Chief approves technical readiness; that alone is not user merge approval.
+## Code quality: no spaghetti
+- Small single-purpose functions and modules, clear boundaries, one-directional dependencies. No god files, copy-paste duplication, dead code or speculative abstraction. Reuse and extend existing patterns before adding new ones.
+- Handle errors explicitly at boundaries; never swallow them or add silent fallbacks. Validate and type data at boundaries. No magic numbers or hard-coded config.
+- Every behavior gets a test; a bug fix starts with a failing test. Never weaken tests.
+- Use the matching skills when installed: codebase-design, code-simplification, constraint-driven-development, test-driven-development, systematic-debugging.
+
+## Security baseline
+- No secrets in code, logs, commits or memory; keep .env out of git and ship .env.example. Validate all external input, use parameterized queries, enforce authorization on every route, escape output, review dependencies, return safe error messages.
+- Run security-and-hardening or a security review on anything touching auth, input, files, network or dependencies before a PR.
+- Dev and demo servers bind to 127.0.0.1 by default; use 0.0.0.0 only when something else (such as WSL) needs to reach them, and say so.
+- Never deploy to production, incur recurring costs, delete unrelated data or leak secrets without explicit approval.
+
+## UI and design
+- Before UI work load design-match: pick references, scan live sites for real tokens, write a spec, build from it, and compare screenshots. For artifacts load artifact-design first.
+- No AI-slop patterns. Verify in a real browser at 390px and 1440px, including empty, loading and error states, before claiming done.
+
+## Git and GitHub
+- Work in a topic branch and sibling worktree; verify `pwd` before any edit. Never push to main/master or the remote default branch, force push, or overwrite unrelated work. Stage explicit paths; commit as <type>(<scope>): <summary> with linked issue references; test each coherent behavior before committing.
+- Create or reuse a GitHub issue before feature or bug work. If there is no remote, auth or network, report the missing prerequisite; never fabricate issue IDs. Use CCPM for PRD, epic, tasks and linked issues; these git rules override CCPM defaults. For a brand-new app, propose private repo provisioning in the plan; never auto-publish the home directory or unrelated files.
+- Push only after local review of the exact HEAD (a new commit invalidates it). Open a PR with `Closes #N` and local verification evidence. The user is final merge authority unless they explicitly delegate it.
 
 ## Local review and verification
-- Run focused behavior tests for each change and appropriate lint/type/build/integration checks locally. Bug fixes require fail-before/pass-after regression evidence where feasible. Do not weaken tests or assert verification that did not run.
-- Validator independently reviews every writer's code and the integrated result. Run CodeRabbit CLI locally before push/PR: inspect installed help, typically coderabbit review --agent --base <base>. Inspect findings; exit code zero alone is not a clean verdict. Resolve security/performance findings and document other dispositions. Missing authentication/tool/network leaves review pending.
-- STRICT NO CI: do not create, configure, trigger or rely on remote CI/CD for gates. Existing third-party repository automation may still trigger on a push; report this rather than promising control over remote settings. Choose another delivery path if the user requires zero remote runs.
-- For HTTP features, serve on 0.0.0.0, verify health and actual feature behavior using curl/browser, and report localhost plus WSL IP URLs with verified status and stop instructions. For a TUI, use a PTY and verify interactions; it need not invent an HTTP port. Leave a requested demo running and explain how to stop it.
-- Handoff: task/issue, branch/worktree, changed paths, exact SHA, test commands/results, CodeRabbit findings, Validator verdict, Chief decision, PR and remaining risks.
+- Run focused tests for each change plus the relevant lint, type, build and integration checks. Never assert verification that did not run.
+- Run CodeRabbit locally before push or PR (typically `coderabbit review --agent --base <base>`). Inspect findings: exit code zero alone is not a clean verdict. Resolve security and performance findings, document other dispositions; missing auth, tool or network leaves review pending.
+- STRICT NO CI: do not create, configure, trigger or rely on remote CI/CD. Existing third-party automation may still trigger on push; report it rather than promising control.
+- HTTP features: verify health and real behavior with curl or a browser, report localhost and WSL IP URLs with verified status and stop instructions, and leave a requested demo running. TUI: verify in a PTY.
 
 ## Learning and skills
-- Record stable user preferences with date, provenance, scope and confidence in ~/.agent-team/memory/preferences.md. Each role keeps ~/.agent-team/memory/<role>/MEMORY.md. Keep project facts in repository docs, not global memory.
-- Self-learning means maintained notes and reusable skills, not model weight training. Never store credentials or private payloads in memory. Distinguish explicit corrections from inference, retire contradicted notes, disclose meaningful learning.
-- After a repeated successful workflow, create a narrow SKILL.md with trigger, inputs, procedure, outputs, meaningful verification and failure handling. Reuse ECC/CCPM where appropriate. Share personal skills through ~/.agent-team/skills and the user discovery directories; use agent-team sync after approved updates to synchronize Windows snapshots.
-- Autonomy stays inside the requested scope. Never leak secrets, delete unrelated data, deploy to production or incur unapproved recurring costs. Preserve backups before changing personal configuration.
+- Record stable user preferences in ~/.agent-team/memory/preferences.md with date, provenance, scope and confidence; project facts belong in repo docs. Never store credentials or private payloads. Separate explicit corrections from inference, retire contradicted notes, disclose meaningful learning.
+- After a repeated successful workflow, create a narrow SKILL.md (trigger, inputs, procedure, outputs, verification, failure handling), reusing ECC/CCPM where appropriate. Share through ~/.agent-team/skills; run `agent-team sync` after approved updates.
+- Preserve backups before changing personal configuration.
 '''
 
 BOOT_COMMON = '''You are Chief, the main orchestrator of this {{PROVIDER}} team session, started by {{PROVIDER}}-team inside tmux. Read your personal chief role (~/.agent-team/roles/chief.md), the universal rules and shared preferences first.
@@ -552,7 +568,7 @@ def write_rules(path, rules):
     current = slurp(path) if present(path) and (path in PLANNED or path.is_file()) else None
     write(path, shared_team().managed_rules(current, rules))
 
-PREFERENCES = '# User preferences\n\nShipped defaults of this setup (AI-Setup); replace or extend them with your own explicit corrections:\n- Detailed Chief plan and your approval before app/feature implementation.\n- YOLO execution for authorized tasks with regular interaction and steering.\n- Chief plus independent Validator in team sessions.\n- Separate writer worktrees, atomic behavior tests and topic commits/pushes.\n- Local CodeRabbit review; no remote CI gates; you control merges.\n- Shared Claude/Codex skills and documented learning across WSL and Windows.\n\nRecord your own preferences below with date, provenance, scope and confidence (explicit corrections are authoritative; inferences stay tentative).\n'
+PREFERENCES = '# User preferences\n\nShipped defaults of this setup (AI-Setup); replace or extend them with your own explicit corrections:\n- Brainstorm first: an in-depth scope discussion before any coding session, for new projects and for changes, features and updates.\n- Detailed Chief plan and your approval before app/feature implementation.\n- YOLO execution for authorized tasks with regular interaction and steering.\n- Chief plus independent Validator in team sessions.\n- Separate writer worktrees, atomic behavior tests and topic commits/pushes.\n- Local CodeRabbit review; no remote CI gates; you control merges.\n- Shared Claude/Codex skills and documented learning across WSL and Windows.\n\nRecord your own preferences below with date, provenance, scope and confidence (explicit corrections are authoritative; inferences stay tentative).\n'
 
 def apply():
     providers = installed_providers()
